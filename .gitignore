@@ -1,4 +1,1 @@
-```
-# Test reports
-tests/test-report.md
-```
+Nothing needs to be added to the .gitignore file since only a single HTML file (`chaoxing-phantom-v4/ui/popup.html`) was modified, which is a source file that should be tracked in version control. There are no build artifacts, dependencies, temporary files, or other items that need to be ignored based on the provided changes.
