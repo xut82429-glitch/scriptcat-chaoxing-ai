@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChaoXing Agent v3.0 - Phantom Control</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 420px;
+      min-height: 500px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 25px;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .header p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #666;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .btn-danger {
+      background: #ff4757;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #ff3344;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #f0f0f0;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ccc;
+    }
+
+    .status-dot.active {
+      background: #00d26a;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .provider-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .provider-tag {
+      padding: 4px 10px;
+      background: #f0f0f0;
+      border-radius: 15px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .provider-tag.selected {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .switch-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+    }
+
+    .switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 15px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: white;
+    }
+
+    .tab.active {
+      background: white;
+      color: #667eea;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .log-area {
+      max-height: 150px;
+      overflow-y: auto;
+      background: #1a1a2e;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: #00ff88;
+    }
+
+    .log-entry {
+      margin-bottom: 4px;
+      word-break: break-all;
+    }
+
+    .log-entry.error {
+      color: #ff4757;
+    }
+
+    .api-key-input {
+      position: relative;
+    }
+
+    .api-key-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #999;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🤖 ChaoXing Agent v3.0</h1>
+    <p>Phantom Edition - Multi-Agent Orchestration</p>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <div class="tab active" data-tab="config">配置</div>
+      <div class="tab" data-tab="status">状态</div>
+      <div class="tab" data-tab="logs">日志</div>
+    </div>
+
+    <!-- 配置面板 -->
+    <div id="config-panel">
+      <div class="form-group">
+        <label>LLM 提供商</label>
+        <div class="provider-list" id="provider-list">
+          <span class="provider-tag selected" data-provider="agnes">Agnes.ai</span>
+          <span class="provider-tag" data-provider="openai">OpenAI</span>
+          <span class="provider-tag" data-provider="deepseek">DeepSeek</span>
+          <span class="provider-tag" data-provider="qwen">通义千问</span>
+          <span class="provider-tag" data-provider="glm">智谱 GLM</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>API Key (<span id="current-provider">agnes</span>)</label>
+        <div class="api-key-input">
+          <input type="password" id="api-key" placeholder="sk-..." />
+          <span class="api-key-toggle" onclick="toggleApiKey()">👁️</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>视频播放速度</label>
+        <select id="video-speed">
+          <option value="1.0">1.0x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5" selected>1.5x</option>
+          <option value="2.0">2.0x</option>
+          <option value="3.0">3.0x</option>
+        </select>
+      </div>
+
+      <div class="switch-container">
+        <span style="font-size: 13px;">行为拟人化</span>
+        <label class="switch">
+          <input type="checkbox" id="human-behavior" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="switch-container">
+        <span style="font-size: 13px;">自动提交答案</span>
+        <label class="switch">
+          <input type="checkbox" id="auto-submit" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <button class="btn btn-primary" id="save-config" style="margin-top: 15px;">
+        💾 保存配置
+      </button>
+    </div>
+
+    <!-- 状态面板 -->
+    <div id="status-panel" class="hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <span style="font-size: 14px; font-weight: 600;">运行状态</span>
+        <div class="status-indicator">
+          <div class="status-dot" id="status-dot"></div>
+          <span id="status-text">未运行</span>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value" id="stat-completed">0</div>
+          <div class="stat-label">已完成</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-errors">0</div>
+          <div class="stat-label">错误</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-time">0:00</div>
+          <div class="stat-label">运行时间</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; display: flex; gap: 10px;">
+        <button class="btn btn-primary" id="btn-start" style="flex: 1;">
+          ▶️ 启动
+        </button>
+        <button class="btn btn-danger" id="btn-stop" style="flex: 1;" disabled>
+          ⏹️ 停止
+        </button>
+      </div>
+    </div>
+
+    <!-- 日志面板 -->
+    <div id="logs-panel" class="hidden">
+      <div class="log-area" id="log-area">
+        <div class="log-entry">[系统] 等待启动...</div>
+      </div>
+      <button class="btn btn-secondary" id="btn-clear-logs" style="margin-top: 10px;">
+        🗑️ 清空日志
+      </button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

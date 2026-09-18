@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phantom Agent v4 设置</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      width: 420px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 20px;
+    }
+    
+    .header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    
+    .header p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .form-group {
+      margin-bottom: 12px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #666;
+      margin-top: 8px;
+    }
+    
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    
+    .status-connected {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .status-disconnected {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .provider-list {
+      max-height: 150px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+    
+    .provider-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      background: #f9f9f9;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .provider-item:hover {
+      background: #f0f0f0;
+    }
+    
+    .provider-item.active {
+      background: #e8f4ff;
+      border: 1px solid #667eea;
+    }
+    
+    .provider-name {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    
+    .provider-model {
+      font-size: 11px;
+      color: #999;
+    }
+    
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .toggle-label {
+      font-size: 13px;
+      color: #555;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.3s;
+      border-radius: 24px;
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .toggle-slider {
+      background-color: #667eea;
+    }
+    
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    
+    .stat-item {
+      text-align: center;
+      padding: 8px;
+      background: #f9f9f9;
+      border-radius: 6px;
+    }
+    
+    .stat-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #667eea;
+    }
+    
+    .stat-label {
+      font-size: 10px;
+      color: #999;
+      margin-top: 2px;
+    }
+    
+    .custom-provider-form {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #e0e0e0;
+    }
+    
+    .custom-provider-form.show {
+      display: block;
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      font-size: 13px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      color: #666;
+    }
+    
+    .tab.active {
+      border-bottom-color: #667eea;
+      color: #667eea;
+      font-weight: 500;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .message {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    
+    .message-success {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .message-error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>👻 Phantom Agent v4</h1>
+    <p>企业级超星智能助手</p>
+  </div>
+
+  <!-- 状态消息 -->
+  <div id="messageArea"></div>
+
+  <!-- 标签页切换 -->
+  <div class="tabs">
+    <div class="tab active" data-tab="llm">LLM 配置</div>
+    <div class="tab" data-tab="behavior">行为设置</div>
+    <div class="tab" data-tab="stats">统计</div>
+  </div>
+
+  <!-- LLM 配置 tab -->
+  <div id="tab-llm" class="tab-content active">
+    <div class="card">
+      <div class="card-title">🤖 选择 LLM 提供商</div>
+      <div class="provider-list" id="providerList">
+        <!-- 动态生成 -->
+      </div>
+      
+      <button class="btn btn-secondary" id="btnAddCustomProvider">+ 添加自定义提供商</button>
+      
+      <div class="custom-provider-form" id="customProviderForm">
+        <div class="form-group">
+          <label>提供商 ID (英文唯一标识)</label>
+          <input type="text" id="customProviderId" placeholder="如：my-local-llm">
+        </div>
+        <div class="form-group">
+          <label>显示名称</label>
+          <input type="text" id="customProviderName" placeholder="如：我的本地模型">
+        </div>
+        <div class="form-group">
+          <label>Base URL (完整地址)</label>
+          <input type="url" id="customProviderBaseUrl" placeholder="如：http://localhost:11434/v1">
+        </div>
+        <div class="form-group">
+          <label>API Key (可选)</label>
+          <input type="password" id="customProviderApiKey" placeholder="如：sk-xxx">
+        </div>
+        <div class="form-group">
+          <label>默认模型名称</label>
+          <input type="text" id="customProviderModel" placeholder="如：qwen:7b">
+        </div>
+        <button class="btn btn-primary" id="btnSaveCustomProvider">保存自定义提供商</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔑 API 配置</div>
+      <div class="form-group">
+        <label>当前模型</label>
+        <input type="text" id="currentModel" placeholder="将自动填充">
+      </div>
+      <div class="form-group">
+        <label>API Key</label>
+        <input type="password" id="apiKeyInput" placeholder="输入你的 API Key">
+      </div>
+      <button class="btn btn-primary" id="btnTestConnection">测试连接</button>
+      <button class="btn btn-primary" id="btnSaveConfig" style="margin-top: 8px;">保存配置</button>
+    </div>
+  </div>
+
+  <!-- 行为设置 tab -->
+  <div id="tab-behavior" class="tab-content">
+    <div class="card">
+      <div class="card-title">🎭 人类行为模拟</div>
+      
+      <div class="toggle-row">
+        <span class="toggle-label">启用拟人化延迟</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggleHumanDelay" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      
+      <div class="form-group">
+        <label>平均思考时间 (秒)</label>
+        <input type="number" id="thinkTimeMean" value="5" min="1" max="30">
+      </div>
+      
+      <div class="form-group">
+        <label>思考时间波动 (标准差)</label>
+        <input type="number" id="thinkTimeStd" value="1.5" min="0.5" max="5" step="0.1">
+      </div>
+      
+      <div class="toggle-row">
+        <span class="toggle-label">模拟分心 (20% 概率长时间停顿)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggleDistraction" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      
+      <div class="toggle-row">
+        <span class="toggle-label">故意答错 (降低异常检测风险)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggleErrorRate">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      
+      <div class="form-group">
+        <label>错误率 (%)</label>
+        <input type="number" id="errorRate" value="3" min="1" max="20">
+      </div>
+      
+      <button class="btn btn-primary" id="btnSaveBehavior">保存行为设置</button>
+    </div>
+  </div>
+
+  <!-- 统计 tab -->
+  <div id="tab-stats" class="tab-content">
+    <div class="card">
+      <div class="card-title">📊 使用统计</div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value" id="statQuestions">0</div>
+          <div class="stat-label">已答题目</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="statCorrect">0%</div>
+          <div class="stat-label">正确率</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="statTime">0m</div>
+          <div class="stat-label">运行时间</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">ℹ️ 关于</div>
+      <p style="font-size: 12px; color: #666; line-height: 1.6;">
+        Phantom Agent v4.0<br>
+        支持完全自定义 LLM 提供商<br>
+        Base URL / API Key / 模型名称 均可自由配置<br>
+        <br>
+        ⚠️ 仅供学习交流使用
+      </p>
+    </div>
+    
+    <button class="btn btn-secondary" id="btnResetStats">重置统计</button>
+  </div>
+
+  <script src="../config/providers.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
