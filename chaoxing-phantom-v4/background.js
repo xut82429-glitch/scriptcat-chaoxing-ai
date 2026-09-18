@@ -46,6 +46,43 @@ async function saveState() {
 // 初始化
 loadState();
 
+// 测试 API 连通性
+async function testConnection({ providerId }) {
+  const provider = getProvider(providerId) || globalState.providers?.[providerId];
+  if (!provider) {
+    return { success: false, error: '提供商不存在' };
+  }
+  
+  const apiKey = globalState.providers?.[providerId]?.apiKey || provider.apiKey;
+  if (!apiKey) {
+    return { success: false, error: 'API Key 未配置' };
+  }
+  
+  try {
+    const response = await fetch(`${provider.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: provider.defaultModel,
+        messages: [{ role: 'user', content: 'Hello, are you online?' }],
+        max_tokens: 10
+      })
+    });
+    
+    if (response.ok) {
+      return { success: true, message: '连接成功' };
+    } else {
+      const error = await response.json().catch(() => ({}));
+      return { success: false, error: error.error?.message || response.statusText };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 // 消息监听
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   handleMessage(message, sender, sendResponse);
@@ -104,6 +141,11 @@ async function handleMessage(message, sender, sendResponse) {
         };
         await saveState();
         sendResponse({ success: true });
+        break;
+        
+      case 'TEST_CONNECTION':
+        const testResult = await testConnection(payload);
+        sendResponse(testResult);
         break;
         
       default:
@@ -219,51 +261,5 @@ async function callLLM({ providerId, model, messages, temperature = 0.7, maxToke
       success: false,
       error: error.message
     };
-  }
-}
-
-// 测试 API 连通性
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'TEST_CONNECTION') {
-    testConnection(message.payload)
-      .then(sendResponse)
-      .catch(err => sendResponse({ success: false, error: err.message }));
-    return true;
-  }
-});
-
-async function testConnection({ providerId }) {
-  const provider = getProvider(providerId) || globalState.providers?.[providerId];
-  if (!provider) {
-    return { success: false, error: '提供商不存在' };
-  }
-  
-  const apiKey = globalState.providers?.[providerId]?.apiKey || provider.apiKey;
-  if (!apiKey) {
-    return { success: false, error: 'API Key 未配置' };
-  }
-  
-  try {
-    const response = await fetch(`${provider.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: provider.defaultModel,
-        messages: [{ role: 'user', content: 'Hello, are you online?' }],
-        max_tokens: 10
-      })
-    });
-    
-    if (response.ok) {
-      return { success: true, message: '连接成功' };
-    } else {
-      const error = await response.json().catch(() => ({}));
-      return { success: false, error: error.error?.message || response.statusText };
-    }
-  } catch (error) {
-    return { success: false, error: error.message };
   }
 }
