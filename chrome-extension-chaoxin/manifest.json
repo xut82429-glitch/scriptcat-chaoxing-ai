@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "超星学习通满分助手 - Chrome扩展版",
+  "version": "1.0.0",
+  "description": "超星学习通满分助手，支持LLM智能答题(OpenAI/DeepSeek/kimi/智谱/千问等)，自动完成课程任务",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "*://*.chaoxing.com/*",
+    "*://*.edu.cn/*",
+    "*://*.nbdlib.cn/*",
+    "*://*.hnsyu.net/*",
+    "*://*.gdhkmooc.com/*",
+    "https://api.openai.com/*",
+    "https://api.deepseek.com/*",
+    "https://api.anthropic.com/*",
+    "https://open.bigmodel.cn/*",
+    "https://dashscope.aliyuncs.com/*",
+    "https://api.xiaomimimo.com/*",
+    "https://token-plan-cn.xiaomimimo.com/*",
+    "https://www.baidu.com/*",
+    "https://www.bing.com/*",
+    "https://cn.bing.com/*",
+    "https://duckduckgo.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.chaoxing.com/*",
+        "*://*.edu.cn/*",
+        "*://*.nbdlib.cn/*",
+        "*://*.hnsyu.net/*",
+        "*://*.gdhkmooc.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_end",
+      "all_frames": true
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "超星学习通满分助手",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["*.css", "*.ttf", "*.json"],
+      "matches": ["*://*.chaoxing.com/*", "*://*.edu.cn/*"]
+    }
+  ]
+}
