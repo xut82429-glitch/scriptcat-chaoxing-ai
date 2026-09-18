@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "ChaoXing Phantom Agent v4",
+  "version": "4.0.0",
+  "description": "企业级超星学习通智能助手 - 多智能体协作 | 完全自定义LLM | 军用级反检测",
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "alarms"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.chaoxing.com/*", "*://*.mooc1.chaoxing.com/*"],
+      "js": ["libs/font-decoder.js", "libs/human-behavior.js", "libs/anti-detect.js", "content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "action": {
+    "default_popup": "ui/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Phantom Agent 设置"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["libs/*.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
