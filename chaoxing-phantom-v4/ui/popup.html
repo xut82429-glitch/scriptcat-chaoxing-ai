@@ -8,46 +8,56 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
-      width: 420px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #333;
-      padding: 20px;
+      width: 450px;
+      min-height: 500px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #764ba2 100%);
+      color: #1a1a1a;
+      padding: 16px;
     }
     
     .header {
       text-align: center;
       color: white;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
     }
     
     .header h1 {
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 5px;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
     
     .header p {
-      font-size: 12px;
-      opacity: 0.9;
+      font-size: 13px;
+      opacity: 0.95;
+      font-weight: 500;
     }
     
     .card {
-      background: white;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.3);
     }
     
     .card-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #667eea;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e3c72;
       margin-bottom: 12px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e8f0fe;
     }
     
     .form-group {
@@ -56,129 +66,142 @@
     
     .form-group label {
       display: block;
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 4px;
+      font-size: 13px;
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 6px;
     }
     
     .form-group input,
     .form-group select {
       width: 100%;
-      padding: 8px 10px;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 13px;
-      transition: border-color 0.2s;
+      padding: 10px 12px;
+      border: 2px solid #d0d7de;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      background: #fafbfc;
     }
     
     .form-group input:focus,
     .form-group select:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: #1e3c72;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.15);
+    }
+    
+    .form-group input::placeholder {
+      color: #999;
     }
     
     .btn {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       border: none;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 500;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
     .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
       color: white;
+      box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
     }
     
     .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(30, 60, 114, 0.4);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
     }
     
     .btn-secondary {
-      background: #f5f5f5;
-      color: #666;
+      background: #f6f8fa;
+      color: #24292f;
+      border: 2px solid #d0d7de;
       margin-top: 8px;
     }
     
     .btn-secondary:hover {
-      background: #e0e0e0;
-    }
-    
-    .status-badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 500;
-    }
-    
-    .status-connected {
-      background: #d4edda;
-      color: #155724;
-    }
-    
-    .status-disconnected {
-      background: #f8d7da;
-      color: #721c24;
+      background: #eaecef;
+      border-color: #9ca3af;
     }
     
     .provider-list {
-      max-height: 150px;
+      max-height: 180px;
       overflow-y: auto;
       margin-bottom: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      background: #f9fafb;
+      padding: 4px;
     }
     
     .provider-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px;
+      padding: 10px 12px;
       border-radius: 6px;
-      margin-bottom: 6px;
-      background: #f9f9f9;
+      margin-bottom: 4px;
+      background: white;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
+      border: 2px solid transparent;
     }
     
     .provider-item:hover {
-      background: #f0f0f0;
+      background: #f0f7ff;
+      transform: translateX(2px);
     }
     
     .provider-item.active {
-      background: #e8f4ff;
-      border: 1px solid #667eea;
+      background: #dbeafe;
+      border-color: #1e3c72;
+      box-shadow: 0 2px 8px rgba(30, 60, 114, 0.2);
     }
     
     .provider-name {
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f2937;
     }
     
     .provider-model {
-      font-size: 11px;
-      color: #999;
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 2px;
     }
     
     .toggle-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      padding: 8px;
+      background: #f9fafb;
+      border-radius: 6px;
     }
     
     .toggle-label {
-      font-size: 13px;
-      color: #555;
+      font-size: 14px;
+      color: #374151;
+      font-weight: 500;
     }
     
     .toggle-switch {
       position: relative;
-      width: 44px;
-      height: 24px;
+      width: 48px;
+      height: 26px;
     }
     
     .toggle-switch input {
@@ -194,62 +217,66 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #ccc;
+      background-color: #d1d5db;
       transition: 0.3s;
-      border-radius: 24px;
+      border-radius: 26px;
     }
     
     .toggle-slider:before {
       position: absolute;
       content: "";
-      height: 18px;
-      width: 18px;
+      height: 20px;
+      width: 20px;
       left: 3px;
       bottom: 3px;
       background-color: white;
       transition: 0.3s;
       border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     
     input:checked + .toggle-slider {
-      background-color: #667eea;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     }
     
     input:checked + .toggle-slider:before {
-      transform: translateX(20px);
+      transform: translateX(22px);
     }
     
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 10px;
       margin-top: 10px;
     }
     
     .stat-item {
       text-align: center;
-      padding: 8px;
-      background: #f9f9f9;
-      border-radius: 6px;
+      padding: 12px 8px;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border-radius: 8px;
+      border: 2px solid #bae6fd;
     }
     
     .stat-value {
-      font-size: 18px;
-      font-weight: 600;
-      color: #667eea;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1e3c72;
     }
     
     .stat-label {
-      font-size: 10px;
-      color: #999;
-      margin-top: 2px;
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 4px;
+      font-weight: 500;
+      text-transform: uppercase;
     }
     
     .custom-provider-form {
       display: none;
       margin-top: 12px;
       padding-top: 12px;
-      border-top: 1px solid #e0e0e0;
+      border-top: 2px dashed #d0d7de;
     }
     
     .custom-provider-form.show {
@@ -259,24 +286,32 @@
     .tabs {
       display: flex;
       margin-bottom: 12px;
-      border-bottom: 2px solid #e0e0e0;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      padding: 4px;
     }
     
     .tab {
       flex: 1;
-      padding: 8px;
+      padding: 10px 8px;
       text-align: center;
-      font-size: 13px;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      color: #666;
+      border-radius: 8px;
+      color: rgba(255,255,255,0.8);
+      transition: all 0.2s;
+    }
+    
+    .tab:hover {
+      background: rgba(255,255,255,0.15);
+      color: white;
     }
     
     .tab.active {
-      border-bottom-color: #667eea;
-      color: #667eea;
-      font-weight: 500;
+      background: white;
+      color: #1e3c72;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
     
     .tab-content {
@@ -288,48 +323,47 @@
     }
     
     .message {
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
       margin-bottom: 10px;
+      border-left: 4px solid;
     }
     
     .message-success {
-      background: #d4edda;
-      color: #155724;
+      background: #dcfce7;
+      color: #166534;
+      border-left-color: #22c55e;
     }
     
     .message-error {
-      background: #f8d7da;
-      color: #721c24;
+      background: #fee2e2;
+      color: #991b1b;
+      border-left-color: #ef4444;
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>👻 Phantom Agent v4</h1>
-    <p>企业级超星智能助手</p>
+    <h1>👻 Phantom Agent v4.0</h1>
+    <p>企业级超星智能助手 · 支持自定义 LLM</p>
   </div>
 
-  <!-- 状态消息 -->
   <div id="messageArea"></div>
 
-  <!-- 标签页切换 -->
   <div class="tabs">
-    <div class="tab active" data-tab="llm">LLM 配置</div>
-    <div class="tab" data-tab="behavior">行为设置</div>
-    <div class="tab" data-tab="stats">统计</div>
+    <div class="tab active" data-tab="llm">🤖 LLM 配置</div>
+    <div class="tab" data-tab="behavior">🎭 行为设置</div>
+    <div class="tab" data-tab="stats">📊 统计</div>
   </div>
 
-  <!-- LLM 配置 tab -->
   <div id="tab-llm" class="tab-content active">
     <div class="card">
-      <div class="card-title">🤖 选择 LLM 提供商</div>
-      <div class="provider-list" id="providerList">
-        <!-- 动态生成 -->
-      </div>
+      <div class="card-title">📡 选择 LLM 提供商</div>
+      <div class="provider-list" id="providerList"></div>
       
-      <button class="btn btn-secondary" id="btnAddCustomProvider">+ 添加自定义提供商</button>
+      <button class="btn btn-secondary" id="btnAddCustomProvider">➕ 添加自定义提供商</button>
       
       <div class="custom-provider-form" id="customProviderForm">
         <div class="form-group">
@@ -352,7 +386,7 @@
           <label>默认模型名称</label>
           <input type="text" id="customProviderModel" placeholder="如：qwen:7b">
         </div>
-        <button class="btn btn-primary" id="btnSaveCustomProvider">保存自定义提供商</button>
+        <button class="btn btn-primary" id="btnSaveCustomProvider">💾 保存自定义提供商</button>
       </div>
     </div>
 
@@ -366,12 +400,11 @@
         <label>API Key</label>
         <input type="password" id="apiKeyInput" placeholder="输入你的 API Key">
       </div>
-      <button class="btn btn-primary" id="btnTestConnection">测试连接</button>
-      <button class="btn btn-primary" id="btnSaveConfig" style="margin-top: 8px;">保存配置</button>
+      <button class="btn btn-primary" id="btnTestConnection">🔌 测试连接</button>
+      <button class="btn btn-primary" id="btnSaveConfig" style="margin-top: 8px;">💾 保存配置</button>
     </div>
   </div>
 
-  <!-- 行为设置 tab -->
   <div id="tab-behavior" class="tab-content">
     <div class="card">
       <div class="card-title">🎭 人类行为模拟</div>
@@ -415,11 +448,10 @@
         <input type="number" id="errorRate" value="3" min="1" max="20">
       </div>
       
-      <button class="btn btn-primary" id="btnSaveBehavior">保存行为设置</button>
+      <button class="btn btn-primary" id="btnSaveBehavior">💾 保存行为设置</button>
     </div>
   </div>
 
-  <!-- 统计 tab -->
   <div id="tab-stats" class="tab-content">
     <div class="card">
       <div class="card-title">📊 使用统计</div>
@@ -441,16 +473,17 @@
     
     <div class="card">
       <div class="card-title">ℹ️ 关于</div>
-      <p style="font-size: 12px; color: #666; line-height: 1.6;">
-        Phantom Agent v4.0<br>
+      <p style="font-size: 13px; color: #4b5563; line-height: 1.7;">
+        <strong>Phantom Agent v4.0</strong><br>
         支持完全自定义 LLM 提供商<br>
-        Base URL / API Key / 模型名称 均可自由配置<br>
-        <br>
+        Base URL / API Key / 模型名称 均可自由配置<br><br>
+        ✅ 内置 Agnes.ai、OpenAI、通义千问等预设<br>
+        ✅ 支持 Ollama、LM Studio 等本地部署<br><br>
         ⚠️ 仅供学习交流使用
       </p>
     </div>
     
-    <button class="btn btn-secondary" id="btnResetStats">重置统计</button>
+    <button class="btn btn-secondary" id="btnResetStats">🔄 重置统计</button>
   </div>
 
   <script src="../config/providers.js"></script>
