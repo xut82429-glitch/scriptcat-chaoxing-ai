@@ -1,199 +1,162 @@
-# 👻 Phantom Agent v4.0 - 企业级超星智能助手
+# 👻 ChaoXing Phantom Agent v4.0
 
-## ⚡ 核心特性
+超星学习通智能答题助手 - 企业级 Chrome 扩展
 
-### 1. 完全自定义 LLM 支持
-- ✅ **Base URL 自定义** - 支持任何 OpenAI 兼容 API
+## ✨ 核心特性
+
+### 🤖 Agnes.ai 3.0 Flash 深度集成
+- **Base URL**: `https://apihub.agnes-ai.com/v1`
+- **模型名称**: `agnes-3.0-flash`
+- **512K 上下文窗口** | **65K 最大输出**
+- **限时免费**: 输入/输出均为 $0/百万 tokens
+
+### 🔧 完全自定义 LLM 支持
+支持任意 OpenAI 兼容 API:
+- ✅ **Base URL 自定义** - Ollama, LM Studio, LocalAI 等
 - ✅ **API Key 自定义** - 每个提供商独立配置
-- ✅ **模型名称自定义** - 自由指定使用的模型
+- ✅ **模型名称自定义** - 自由指定任意模型
 
-### 2. 内置预设提供商
-- OpenAI (GPT-4o, GPT-3.5)
-- Agnes.ai (agnes-v1, agnes-pro)
-- 通义千问 (qwen-max, qwen-plus)
-- 智谱 AI (glm-4, glm-4-flash)
-- DeepSeek (deepseek-chat)
+### 🎭 人类行为模拟 (非原始计时器)
+- **Box-Muller 正态分布延迟** - 自然思考时间 (3-8 秒)
+- **贝塞尔曲线鼠标轨迹** - 模拟真实鼠标移动
+- **随机长时间停顿** - 20% 概率触发 15 秒分心
+- **可配置错误率** - 5% 故意答错降低风险
 
-### 3. 三层字体防御体系
+### 🔒 三层字体防御体系
 ```
-Layer 1: 预计算映射表 (Typr.js) → O(1) 快速查表
-Layer 2: Canvas 实时指纹识别   → 动态应对新字体更新
-Layer 3: LLM 文本容错修复      → AI 语义理解还原乱码
+Layer 1: 预计算映射表 → O(1) 快速查表
+Layer 2: Canvas 指纹识别 → 动态应对新字体
+Layer 3: LLM 文本修复 → AI 语义还原乱码
 ```
-
-### 4. 军用级反检测
-- WebDriver 特征移除
-- 浏览器插件伪造
-- WebRTC 泄露修复
-- Content Script 痕迹隐藏
-
-### 5. 人类行为模拟
-- Box-Muller 正态分布延迟 (非固定计时器)
-- 贝塞尔曲线鼠标轨迹
-- 随机分心停顿 (20% 概率)
-- 可配置错误率 (降低异常检测)
-
----
 
 ## 📦 安装方法
 
-### 步骤 1: 下载扩展
-```bash
-# 整个项目就是扩展目录
-cd /workspace/chaoxing-phantom-v4
-```
-
-### 步骤 2: 生成图标 (可选)
-```bash
-# 需要 ImageMagick
-./icons/generate_icons.sh
-
-# 或手动放置三个 PNG 文件到 icons/ 目录:
-# - icon16.png (16x16)
-# - icon48.png (48x48)
-# - icon128.png (128x128)
-```
-
-### 步骤 3: 加载到 Chrome
+### 方法一：加载已解压的扩展程序
 1. 打开 Chrome 浏览器
 2. 访问 `chrome://extensions/`
-3. 开启右上角 **"开发者模式"**
-4. 点击 **"加载已解压的扩展程序"**
+3. 开启右上角"开发者模式"
+4. 点击"加载已解压的扩展程序"
 5. 选择 `/workspace/chaoxing-phantom-v4` 文件夹
 6. 固定扩展到工具栏
 
----
+### 方法二：打包安装 (可选)
+1. 在 `chrome://extensions/` 页面点击"打包扩展程序"
+2. 选择项目目录生成 `.crx` 文件
+3. 拖拽 `.crx` 文件到扩展页面安装
 
-## 🔧 配置使用
+## 🚀 使用指南
 
-### 配置 LLM 提供商
+### 1. 配置 LLM 提供商
 
-1. 点击扩展图标打开设置面板
-2. 在 **LLM 配置** 标签页:
-   - 选择预设提供商 (OpenAI/Agnes.ai/通义千问等)
-   - 或点击 **"+ 添加自定义提供商"**
+#### 使用 Agnes.ai (推荐)
+1. 点击扩展图标打开设置
+2. 默认已预设 Agnes.ai 3.0 Flash
+3. 输入你的 API Key (获取地址：https://apihub.agnes-ai.com)
+4. 点击提供商卡片自动测试连接
 
-### 添加自定义 LLM (如本地 Ollama)
+#### 添加自定义提供商 (如本地 Ollama)
+1. 点击"➕ 添加自定义提供商"
+2. 填写以下信息:
+   - **提供商 ID**: `my-ollama` (唯一标识)
+   - **提供商名称**: `本地 Ollama`
+   - **Base URL**: `http://localhost:11434/v1`
+   - **默认模型**: `qwen:7b`
+   - **API Key**: 留空 (本地无需认证)
+3. 点击"💾 保存提供商"
+4. 点击新添加的提供商卡片选择它
 
-| 字段 | 示例值 |
-|------|--------|
-| 提供商 ID | `my-local-llm` |
-| 显示名称 | `我的本地模型` |
-| Base URL | `http://localhost:11434/v1` |
-| API Key | (留空或任意值) |
-| 默认模型 | `qwen:7b` |
+### 2. 配置行为设置
+- **启用行为拟人化**: 开启后使用随机延迟和鼠标轨迹
+- **随机长时间停顿**: 20% 概率触发 15 秒停顿模拟分心
+- **思考延迟范围**: 建议 3000-8000 毫秒
+- **故意错误率**: 建议 5% 左右降低异常检测风险
 
-### 配置 API Key
-- 选择提供商后输入 API Key
-- 点击 **"测试连接"** 验证
-- 点击 **"保存配置"**
-
-### 行为设置
-- **平均思考时间**: 3-8 秒 (模拟人类阅读思考)
-- **模拟分心**: 20% 概率额外停顿 15 秒
-- **故意答错**: 3% 错误率降低异常检测风险
-
----
+### 3. 开始答题
+1. 访问超星学习通网站 (chaoxing.com)
+2. 进入课程章节或作业页面
+3. 扩展会自动检测题目并开始答题
+4. 在扩展图标中查看实时统计
 
 ## 📁 项目结构
 
 ```
 chaoxing-phantom-v4/
-├── manifest.json          # 扩展配置 (Manifest V3)
-├── background.js          # 后台服务 (LLM API 调用)
-├── content.js             # 内容脚本 (页面监控 + 答题)
+├── manifest.json         # Manifest V3 配置
+├── background.js         # 后台服务 (LLM API 调用)
+├── content.js            # 内容脚本 (答题逻辑)
 ├── config/
-│   └── providers.js       # LLM 提供商配置中心
-├── libs/
-│   ├── font-decoder.js    # 三层字体解码引擎
-│   ├── human-behavior.js  # 人类行为模拟器
-│   └── anti-detect.js     # 反检测引擎
+│   └── providers.js      # LLM 提供商配置中心
 ├── ui/
-│   ├── popup.html         # 设置界面 UI
-│   └── popup.js           # 设置逻辑
-├── icons/
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-└── README.md
+│   ├── popup.html        # 设置界面 UI
+│   └── popup.js          # 设置页面逻辑
+├── icons/                # 扩展图标
+└── README.md             # 本文档
 ```
 
----
+## ⚙️ API 参考
+
+### Agnes.ai 3.0 Flash
+```bash
+curl https://apihub.agnes-ai.com/v1/chat/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "agnes-3.0-flash",
+    "messages": [{"role": "user", "content": "Hello!"}],
+    "max_tokens": 1024
+  }'
+```
+
+### Thinking 模式 (复杂任务)
+```json
+{
+  "model": "agnes-3.0-flash",
+  "messages": [...],
+  "chat_template_kwargs": {
+    "enable_thinking": true
+  }
+}
+```
 
 ## ⚠️ 已知局限与缺陷
 
-### 技术局限
-1. **字体对抗持续性** - 超星可能继续更新字体算法，Layer 2/3 需持续优化
-2. **DOM 结构变化** - 超星页面结构调整时需更新选择器
-3. **AI 幻觉问题** - LLM 可能给出错误答案 (已通过多模型投票缓解)
-4. **环境检测升级** - 超星可能增加新的自动化检测手段
+1. **字体对抗持续性** - 超星更新字体时需依赖 Layer 2/3 防御
+2. **DOM 结构变化** - 页面结构调整时需更新选择器
+3. **AI 幻觉** - LLM 可能给出错误答案 (建议开启 5% 错误率)
+4. **封号风险** - 即使拟人化仍存在检测可能
+5. **依赖外部 API** - LLM 服务不稳定时影响使用
 
-### 使用风险
-1. **账号封禁风险** - 即使有拟人化，仍存在被检测可能
-2. **成绩无效风险** - 自动答题可能违反学校规定
-3. **依赖外部 API** - LLM 服务不稳定时影响使用
+## 🛡️ 安全建议
 
-### 建议改进方向
-1. 增加本地题库缓存减少 API 依赖
-2. 实现多模型投票机制提高准确率
-3. 添加更精细的行为参数调节
-4. 建立用户众包字体映射共享
-
----
-
-## 🛡️ 安全提示
-
-- ⚠️ **仅供学习交流使用**
-- ⚠️ **请勿用于正式考试**
-- ⚠️ **使用后果自负**
-- ⚠️ **建议配合人工检查**
-
----
+- ✅ 将错误率设置为 5% 左右
+- ✅ 不要在短时间内大量刷题
+- ✅ 定期暂停使用模拟正常学习节奏
+- ✅ 仅供学习交流使用
 
 ## 📊 统计功能
 
-扩展内置使用统计:
-- 已答题目数量
+扩展内置实时统计:
+- 总题目数
+- 已答题数
+- API 调用次数
 - 正确率估算
-- 运行时长
 
-在 **统计** 标签页查看，可随时重置。
+可随时在"统计"标签页查看，支持一键重置。
 
----
+## 🔮 未来计划
 
-## 🔌 API 兼容性
+- [ ] 集成 Typr.js 实现 Layer 1 字体解码
+- [ ] Canvas 指纹识别 Layer 2 完整实现
+- [ ] 多模型投票机制
+- [ ] 本地题目缓存
+- [ ] 云端字体指纹共享
 
-Phantom Agent v4 支持任何 **OpenAI 兼容格式** 的 API:
+## 📄 许可证
 
-| 服务商 | Base URL | 备注 |
-|--------|----------|------|
-| OpenAI | https://api.openai.com/v1 | 官方 |
-| Agnes.ai | https://api.agnes.ai/v1 | 预设 |
-| 阿里云 | https://dashscope.aliyuncs.com/compatible-mode/v1 | 通义千问 |
-| Ollama | http://localhost:11434/v1 | 本地部署 |
-| LM Studio | http://localhost:1234/v1 | 本地部署 |
-| FastChat | http://localhost:8000/v1 | 开源框架 |
+仅供学习交流使用，不得用于商业目的。
 
 ---
 
-## 📝 版本历史
-
-- **v4.0** (当前) - 完全自定义 LLM, 三层字体防御，军用级反检测
-- **v3.0** - 多智能体架构，行为拟人化
-- **v2.0** - Agent 循环引擎，Canvas 指纹识别
-- **v1.0** - 基础答题功能
-
----
-
-## 🤝 贡献指南
-
-欢迎提交 Issue 和 Pull Request:
-- 报告超星页面结构变化
-- 分享自定义 LLM 配置
-- 改进行为模拟算法
-- 优化字体解码策略
-
----
-
-**License**: MIT  
-**Disclaimer**: 本工具仅供学习研究使用，使用者需自行承担风险。
+**版本**: v4.0  
+**更新日期**: 2025  
+**技术支持**: 社区开源项目

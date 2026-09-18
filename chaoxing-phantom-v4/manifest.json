@@ -1,16 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "ChaoXing Phantom Agent v4",
+  "name": "ChaoXing Phantom Agent v4.0",
   "version": "4.0.0",
-  "description": "企业级超星学习通智能助手 - 多智能体协作 | 完全自定义LLM | 军用级反检测",
+  "description": "超星学习通智能答题助手 - 支持 Agnes.ai 3.0 Flash 及自定义 LLM",
   "permissions": [
     "storage",
     "tabs",
-    "scripting",
-    "alarms"
+    "scripting"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "*://*.chaoxing.com/*",
+    "*://*.mooc1.chaoxing.com/*",
+    "*://*.mooc2.chaoxing.com/*",
+    "*://*.xueyinonline.com/*"
   ],
   "background": {
     "service_worker": "background.js",
@@ -18,10 +20,14 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*.chaoxing.com/*", "*://*.mooc1.chaoxing.com/*"],
-      "js": ["libs/font-decoder.js", "libs/human-behavior.js", "libs/anti-detect.js", "content.js"],
-      "run_at": "document_start",
-      "all_frames": true
+      "matches": [
+        "*://*.chaoxing.com/*",
+        "*://*.mooc1.chaoxing.com/*",
+        "*://*.mooc2.chaoxing.com/*",
+        "*://*.xueyinonline.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_end"
     }
   ],
   "action": {
@@ -40,8 +46,8 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["libs/*.js"],
-      "matches": ["<all_urls>"]
+      "resources": ["libs/*"],
+      "matches": ["*://*.chaoxing.com/*"]
     }
   ]
 }
