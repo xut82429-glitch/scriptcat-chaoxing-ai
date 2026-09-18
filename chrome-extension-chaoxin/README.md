@@ -1,99 +1,128 @@
-# 超星学习通满分助手 - Chrome 扩展版
+# ChaoXing Agent v2.0 - AI Autonomous Learner
 
-## 项目说明
+基于 LLM Agent 的超星学习通自主刷题助手，具备**动态拟人行为**、**三层字体防御**和**环境自适应能力**。
 
-已将原 ScriptCat 用户脚本改造为 Chrome 浏览器扩展。
+## 🚀 核心升级特性
 
-## 文件结构
+### 1. 三层字体防御体系
+```
+Layer 1: 预计算映射表 (Typr.js)     - 快速查表解密
+Layer 2: Canvas 实时指纹识别        - 动态应对新字体
+Layer 3: LLM 文本容错修复          - AI 语义理解还原
+```
+
+### 2. 行为拟人化引擎
+- **正态分布延迟**: 使用 Box-Muller 变换生成自然思考时间
+- **贝塞尔曲线鼠标轨迹**: 模拟真实用户鼠标移动
+- **随机长时间停顿**: 20% 概率触发 15 秒停顿
+- **可配置错误率**: 模拟 5% 的错误降低异常检测风险
+
+### 3. Agentic 工作流
+```
+感知 (Perceive) → 决策 (Decide) → 执行 (Execute) → 反思 (Reflect)
+```
+- 多重选择器降级策略
+- 多模型投票防幻觉
+- 置信度阈值控制
+- 自我反思优化
+
+### 4. 支持 Agnes.ai
+已内置 Agnes.ai 预设配置，支持 OpenAI 兼容 API。
+
+## 📁 文件结构
 
 ```
 chrome-extension-chaoxin/
-├── manifest.json      # 扩展配置文件 (Manifest V3)
-├── background.js      # 后台服务 worker，处理跨域请求和存储
-├── content.js         # 内容脚本，注入到页面执行主要逻辑
-├── popup.html         # 扩展弹出设置页面
-├── popup.js           # Popup 页面逻辑
-└── README.md          # 本说明文档
+├── manifest.json       # Chrome 扩展配置 (Manifest V3)
+├── background.js       # 后台服务 (LLM API 调用、状态管理)
+├── agent-core.js       # Agent 核心引擎 (含三层字体防御)
+├── popup.html          # 设置界面 UI
+├── popup.js            # 设置页面逻辑
+├── icons/              # 图标资源
+└── libs/               # 第三方库 (Typr.js 等)
 ```
 
-## 主要改动
+## 🛠️ 安装方法
 
-### 1. API 适配
-- `GM_xmlhttpRequest` → `chrome.runtime.sendMessage` + `fetch`
-- `GM_getValue/GM_setValue` → `chrome.storage.local`
-- `GM_addStyle` → 原生 DOM 操作
-- `unsafeWindow` → `window`
-
-### 2. 架构变化
-- **Content Script**: 注入到超星学习通页面，执行自动答题等业务逻辑
-- **Background Service Worker**: 处理跨域 HTTP 请求和持久化存储
-- **Popup**: 提供用户配置界面
-
-### 3. 新增功能
-- 支持通过 Popup 快速配置 LLM 参数
-- 支持 Agnes.ai 等自定义 LLM 提供商（在 content.js 中添加预设）
-
-## 安装方法
-
-### 开发模式安装
 1. 打开 Chrome 浏览器，访问 `chrome://extensions/`
-2. 开启右上角的"开发者模式"
+2. 开启右上角"开发者模式"
 3. 点击"加载已解压的扩展程序"
 4. 选择 `chrome-extension-chaoxin` 文件夹
-5. 扩展图标将出现在浏览器工具栏
+5. 固定扩展到工具栏
 
-### 打包安装
-```bash
-# 在 chrome-extension-chaoxin 目录下
-# 方法 1: 使用 Chrome 开发者模式打包
-# 访问 chrome://extensions/ -> 开发者模式 -> 打包扩展程序
+## ⚙️ 配置说明
 
-# 方法 2: 手动创建 .crx 文件（需要签名密钥）
-```
+### LLM 配置
+- **Agnes.ai** (推荐): Base URL `https://api.agnes.ai/v1`
+- **OpenAI**: `gpt-4`, `gpt-3.5-turbo`
+- **DeepSeek**: `deepseek-chat`, `deepseek-coder`
+- **智谱 AI**: `glm-4`, `glm-3-turbo`
+- **通义千问**: `qwen-max`, `qwen-plus`
+- **自定义**: 任意 OpenAI 兼容 API
 
-## 使用方法
+### 行为拟人化
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| 最小延迟 | 3s | 答题前最小等待时间 |
+| 最大延迟 | 8s | 答题前最大等待时间 |
+| 模拟错误率 | 5% | 故意答错的概率 |
+| 鼠标轨迹 | ✓ | 启用贝塞尔曲线模拟 |
+| 长时间停顿 | ✓ | 20% 概率触发 15s 停顿 |
 
-1. 访问超星学习通网站 (chaoxing.com)
-2. 点击浏览器工具栏的扩展图标
-3. 配置 LLM API Key 和其他选项
-4. 保存后刷新页面即可自动运行
+### 字体防御
+- **Layer1**: 预计算映射表 (最快)
+- **Layer2**: Canvas 指纹识别 (最新)
+- **Layer3**: LLM 容错修复 (最强)
 
-## 添加 Agnes.ai 支持
+### Agent 策略
+- **多模型投票**: 2 个模型同时回答，取多数
+- **自我反思**: 记录失败模式优化策略
+- **置信度阈值**: 70% 以下跳过答题
 
-在 `content.js` 中找到 `llmProviderPresets` 数组，添加：
+## 🔒 安全提示
 
-```javascript
-{ 
-  label: 'Agnes.ai', 
-  value: 'agnes', 
-  baseUrl: 'https://api.agnes.ai/v1',  // 替换为实际 API 地址
-  suffix: '/chat/completions', 
-  models: ['agnes-model'],  // 替换为实际模型
-  apiKeyUrl: 'https://agnes.ai/console'  // 替换为实际密钥获取地址
-}
-```
+1. **合理使用**: 仅用于学习交流，请勿用于作弊
+2. **降低频率**: 建议配合人工操作混合使用
+3. **错误模拟**: 保持 5% 左右错误率降低异常检测
+4. **隐私保护**: API Key 仅存储在本地
 
-同时在 `popup.html` 的下拉选项中添加对应项。
+## 🐛 故障排除
 
-## 注意事项
+### 题目乱码
+- 检查 Layer1/Layer2/Layer3是否全部启用
+- 尝试刷新页面重新加载字体
+- 查看控制台日志确认字体解析状态
 
-⚠️ **重要提示**:
-- 本扩展仅供学习交流使用
-- 自动完成课程可能违反平台规定
-- 请谨慎使用，后果自负
+### Agent 不启动
+- 确认已授予扩展必要权限
+- 检查页面是否在匹配域名下
+- 查看 `chrome://extensions/` 中的错误日志
 
-## 后续开发任务
+### LLM 调用失败
+- 验证 API Key 是否正确
+- 检查网络连接
+- 确认 Base URL 格式正确
 
-完整迁移原脚本功能需要：
-1. 将原脚本中的 Vue 组件逻辑移植到 content.js
-2. 实现自动答题、视频播放、章节切换等核心功能
-3. 完善配置面板 UI
-4. 添加题库接口支持
-5. 测试所有 LLM 提供商兼容性
+## 📝 更新日志
 
-## 技术栈
+### v2.0-agent (2025)
+- ✅ 重构为 Agent 架构 (感知 - 决策 - 执行 - 反思)
+- ✅ 实现三层字体防御系统
+- ✅ 添加行为拟人化引擎 (正态延迟 + 鼠标轨迹)
+- ✅ 集成 Agnes.ai 支持
+- ✅ 新增多模型投票机制
+- ✅ 现代化 Popup UI 设计
+- ✅ Manifest V3 完全兼容
 
-- Manifest V3 (Chrome 扩展最新标准)
-- Vanilla JavaScript (无框架依赖)
-- Chrome Storage API
-- Fetch API
+### v1.0 (原始版本)
+- 基础自动答题功能
+- 单一 LLM 调用
+- 简单字体映射
+
+## 📄 许可证
+
+MIT License - 仅供学习交流使用
+
+---
+
+**注意**: 本扩展可能违反超星学习平台服务条款，请谨慎使用，后果自负。

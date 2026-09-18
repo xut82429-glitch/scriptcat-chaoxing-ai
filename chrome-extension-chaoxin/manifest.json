@@ -1,11 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "超星学习通满分助手 - Chrome扩展版",
-  "version": "1.0.0",
-  "description": "超星学习通满分助手，支持LLM智能答题(OpenAI/DeepSeek/kimi/智谱/千问等)，自动完成课程任务",
+  "name": "ChaoXing Agent - AI Autonomous Learner",
+  "version": "2.0-agent",
+  "description": "基于LLM Agent的超星学习通自主刷题助手，具备动态拟人行为、三层字体防御和环境自适应能力",
   "permissions": [
     "storage",
-    "activeTab"
+    "tabs",
+    "scripting",
+    "activeTab",
+    "webRequest"
   ],
   "host_permissions": [
     "*://*.chaoxing.com/*",
@@ -13,6 +16,7 @@
     "*://*.nbdlib.cn/*",
     "*://*.hnsyu.net/*",
     "*://*.gdhkmooc.com/*",
+    "*://*.mooc1.chaoxing.com/*",
     "https://api.openai.com/*",
     "https://api.deepseek.com/*",
     "https://api.anthropic.com/*",
@@ -23,7 +27,8 @@
     "https://www.baidu.com/*",
     "https://www.bing.com/*",
     "https://cn.bing.com/*",
-    "https://duckduckgo.com/*"
+    "https://duckduckgo.com/*",
+    "https://api.agnes.ai/*"
   ],
   "content_scripts": [
     {
@@ -32,28 +37,36 @@
         "*://*.edu.cn/*",
         "*://*.nbdlib.cn/*",
         "*://*.hnsyu.net/*",
-        "*://*.gdhkmooc.com/*"
+        "*://*.gdhkmooc.com/*",
+        "*://*.mooc1.chaoxing.com/*"
       ],
-      "js": ["content.js"],
-      "run_at": "document_end",
-      "all_frames": true
+      "js": ["agent-core.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
     }
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "action": {
-    "default_title": "超星学习通满分助手",
-    "default_popup": "popup.html"
+    "default_title": "ChaoXing Agent",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
   "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
   "web_accessible_resources": [
     {
-      "resources": ["*.css", "*.ttf", "*.json"],
+      "resources": ["*.css", "*.ttf", "*.woff", "*.json", "libs/*.js"],
       "matches": ["*://*.chaoxing.com/*", "*://*.edu.cn/*"]
     }
   ]
