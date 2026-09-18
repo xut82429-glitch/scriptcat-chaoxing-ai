@@ -1,364 +1,381 @@
-/**
- * Content Script - 主入口
- * Phantom Agent v4.0 - 企业级超星智能助手
- */
-
+// 内容脚本 - 答题逻辑与页面交互
 (function() {
   'use strict';
-  
-  console.log('👻 Phantom Agent v4.0 已启动');
-  
-  // 等待依赖库加载
-  setTimeout(async () => {
-    await initAgent();
-  }, 500);
-  
-  /**
-   * 初始化智能体
-   */
-  async function initAgent() {
-    // 检查是否在超星页面
-    if (!isChaoxingPage()) {
-      console.log('[Phantom] 非超星页面，跳过初始化');
-      return;
+
+  // ==================== 配置与状态 ====================
+  const CONFIG = {
+    debug: true,
+    selectors: {
+      questionContainer: '.questionWrap, .ans-cc, .module-m',
+      questionText: '.title, .question-title, .qContent',
+      options: '.answer-list li, .option, .radio-item',
+      textarea: 'textarea[name="answer"], .editor-container textarea',
+      submitBtn: '.submitBtn, .btn-submit, input[type="submit"]',
+      fontClass: '.font-cxsecret'
     }
-    
-    console.log('[Phantom] 检测到超星页面，开始初始化...');
-    
-    // 加载配置
-    const config = await loadConfig();
-    
-    // 创建人类行为模拟器
-    const humanSimulator = window.createHumanSimulator(config.behaviorConfig || {});
-    
-    // 创建字体解码器
-    const fontDecoder = window.fontDecoder;
-    
-    // 启动页面监控
-    startPageMonitoring(humanSimulator, fontDecoder, config);
-    
-    // 添加控制 UI
-    addControlUI(humanSimulator, config);
+  };
+
+  let agentState = {
+    isActive: false,
+    currentProvider: 'agnes',
+    settings: {},
+    stats: {
+      totalQuestions: 0,
+      answeredQuestions: 0,
+      correctAnswers: 0
+    }
+  };
+
+  // ==================== 工具函数 ====================
+  function log(...args) {
+    if (CONFIG.debug) {
+      console.log('[Phantom Agent]', ...args);
+    }
   }
-  
-  /**
-   * 检查是否为超星页面
-   */
-  function isChaoxingPage() {
-    return window.location.hostname.includes('chaoxing.com') || 
-           window.location.hostname.includes('mooc1.chaoxing.com');
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
-  
-  /**
-   * 加载配置
-   */
-  async function loadConfig() {
-    return new Promise((resolve) => {
-      chrome.runtime.sendMessage({ action: 'getConfig' }, (response) => {
-        resolve(response || {});
+
+  // Box-Muller 正态分布随机延迟
+  function gaussianRandom(mean = 5000, stdDev = 1500) {
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    return Math.max(0, mean + z * stdDev);
+  }
+
+  // 贝塞尔曲线鼠标轨迹模拟
+  async function simulateMouseMovement(element) {
+    if (!element) return;
+    
+    const rect = element.getBoundingClientRect();
+    const startX = Math.random() * window.innerWidth;
+    const startY = Math.random() * window.innerHeight;
+    const endX = rect.left + rect.width / 2;
+    const endY = rect.top + rect.height / 2;
+    
+    const steps = 10 + Math.random() * 10;
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      // 三次贝塞尔曲线
+      const x = (1-t)*(1-t)*(1-t)*startX + 3*(1-t)*(1-t)*t*(startX + (endX-startX)/3) + 
+                3*(1-t)*t*t*(endX - (endX-startX)/3) + t*t*t*endX;
+      const y = (1-t)*(1-t)*(1-t)*startY + 3*(1-t)*(1-t)*t*(startY + (endY-startY)/3) + 
+                3*(1-t)*t*t*(endY - (endY-startY)/3) + t*t*t*endY;
+      
+      // 这里只是模拟，实际不需要移动鼠标
+      await sleep(20 + Math.random() * 30);
+    }
+  }
+
+  // ==================== 字体解码 (三层防御) ====================
+  class FontDecoder {
+    constructor() {
+      this.cache = new Map();
+    }
+
+    // Layer 1: 预计算映射表 (需要 Typr.js)
+    async decodeWithMapping(text) {
+      // TODO: 集成 Typr.js 实现
+      return text;
+    }
+
+    // Layer 2: Canvas 指纹识别
+    async decodeWithCanvas(text) {
+      // TODO: 实现 Canvas 实时指纹识别
+      return text;
+    }
+
+    // Layer 3: LLM 文本容错修复
+    async decodeWithLLM(text) {
+      try {
+        const response = await chrome.runtime.sendMessage({
+          action: 'CALL_LLM',
+          payload: {
+            providerId: agentState.currentProvider,
+            messages: [
+              {
+                role: 'system',
+                content: '你是一个文本修复专家。用户会发送包含乱码的题目文本，请根据上下文推断并还原真实的汉字内容。只返回修复后的文本，不要解释。'
+              },
+              {
+                role: 'user',
+                content: `请修复以下包含乱码的文本:${text}`
+              }
+            ],
+            maxTokens: 1024
+          }
+        });
+
+        if (response.success && response.content) {
+          return response.content.trim();
+        }
+      } catch (error) {
+        log('LLM 字体修复失败:', error);
+      }
+      return text;
+    }
+
+    // 三层防御主方法
+    async decode(text) {
+      if (!text || !text.includes('')) {
+        return text;
+      }
+
+      log('检测到乱码，启动三层防御...');
+
+      // Layer 1
+      let result = await this.decodeWithMapping(text);
+      if (!result.includes('')) return result;
+
+      // Layer 2
+      result = await this.decodeWithCanvas(text);
+      if (!result.includes('')) return result;
+
+      // Layer 3
+      result = await this.decodeWithLLM(text);
+      return result;
+    }
+  }
+
+  const fontDecoder = new FontDecoder();
+
+  // ==================== 题目提取 ====================
+  function extractQuestion() {
+    const container = document.querySelector(CONFIG.selectors.questionContainer);
+    if (!container) {
+      log('未找到题目容器');
+      return null;
+    }
+
+    const questionEl = container.querySelector(CONFIG.selectors.questionText);
+    if (!questionEl) {
+      log('未找到题目标题');
+      return null;
+    }
+
+    const rawText = questionEl.innerText.trim();
+    
+    // 提取选项
+    const options = [];
+    const optionEls = container.querySelectorAll(CONFIG.selectors.options);
+    optionEls.forEach((el, index) => {
+      options.push({
+        index: index,
+        text: el.innerText.trim(),
+        element: el
       });
     });
+
+    return {
+      rawText,
+      options,
+      container,
+      textarea: container.querySelector(CONFIG.selectors.textarea),
+      submitBtn: container.querySelector(CONFIG.selectors.submitBtn)
+    };
   }
-  
-  /**
-   * 启动页面监控
-   */
-  function startPageMonitoring(humanSimulator, fontDecoder, config) {
-    // 使用 MutationObserver 监听 DOM 变化
-    const observer = new MutationObserver(async (mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.addedNodes.length > 0) {
-          // 检查是否有新题目出现
-          await checkForNewQuestions(humanSimulator, fontDecoder, config);
-          
-          // 解码新出现的字体混淆元素
-          await fontDecoder.decodePageElements();
-        }
-      }
-    });
-    
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-    
-    // 初始扫描
-    setTimeout(() => {
-      fontDecoder.decodePageElements();
-      checkForNewQuestions(humanSimulator, fontDecoder, config);
-    }, 1000);
-    
-    console.log('[Phantom] 页面监控已启动');
-  }
-  
-  /**
-   * 检查新题目
-   */
-  async function checkForNewQuestions(humanSimulator, fontDecoder, config) {
-    // 查找题目容器 (需要根据实际超星页面结构调整选择器)
-    const questionSelectors = [
-      '.questionWrap',
-      '.ans-cc',
-      '.topic',
-      '[class*="question"]',
-      '.Zy_TItle'
-    ];
-    
-    for (const selector of questionSelectors) {
-      const questions = document.querySelectorAll(selector);
-      
-      for (const q of questions) {
-        if (!q.dataset.phantomProcessed) {
-          q.dataset.phantomProcessed = 'true';
-          console.log('[Phantom] 发现新题目:', q);
-          
-          // 处理题目
-          await processQuestion(q, humanSimulator, fontDecoder, config);
-        }
-      }
-    }
-  }
-  
-  /**
-   * 处理单个题目
-   */
-  async function processQuestion(questionEl, humanSimulator, fontDecoder, config) {
+
+  // ==================== LLM 答题 ====================
+  async function askLLM(question) {
+    const prompt = `请回答以下问题。如果是选择题，请直接给出选项字母（如"A"或"AB"）；如果是填空题，请直接给出答案；如果是判断题，请回答"正确"或"错误"。
+
+题目:${question.rawText}
+${question.options.length > 0 ? '选项:\n' + question.options.map(o => `${String.fromCharCode(65+o.index)}. ${o.text}`).join('\n') : ''}
+
+请直接给出答案，不要解释。`;
+
     try {
-      // 提取题目文本
-      const questionText = extractQuestionText(questionEl);
-      
-      // 解码字体混淆
-      const decodedText = await fontDecoder.decode(questionText, {
-        context: questionEl.innerText.substring(0, 200)
+      const response = await chrome.runtime.sendMessage({
+        action: 'CALL_LLM',
+        payload: {
+          providerId: agentState.currentProvider,
+          messages: [
+            {
+              role: 'system',
+              content: '你是一个专业的答题助手，擅长解答各类学科题目。请准确、简洁地回答问题。'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          maxTokens: 512
+        }
       });
-      
-      console.log('[Phantom] 题目文本:', decodedText);
-      
-      // 识别题型
-      const questionType = identifyQuestionType(questionEl);
-      
-      // 调用 LLM 获取答案
-      const answer = await getAnswerFromLLM(decodedText, questionType, config);
-      
-      if (answer && answer.success) {
-        console.log('[Phantom] 获得答案:', answer.answer);
-        
-        // 拟人化填写答案
-        await fillAnswer(questionEl, answer.answer, questionType, humanSimulator);
-        
-        // 更新统计
-        updateStats(true);
+
+      if (response.success && response.content) {
+        return parseAnswer(response.content.trim(), question);
       } else {
-        console.warn('[Phantom] 获取答案失败:', answer?.error);
-        updateStats(false);
+        throw new Error(response.error || 'LLM 调用失败');
       }
     } catch (error) {
-      console.error('[Phantom] 处理题目出错:', error);
+      log('LLM 答题失败:', error);
+      return null;
     }
   }
-  
-  /**
-   * 提取题目文本
-   */
-  function extractQuestionText(questionEl) {
-    // 尝试多种选择器
-    const textSelectors = [
-      '.question-text',
-      '.title',
-      '.题干',
-      'b',
-      'strong'
-    ];
-    
-    for (const selector of textSelectors) {
-      const el = questionEl.querySelector(selector);
-      if (el) {
-        return el.innerText.trim();
-      }
-    }
-    
-    // 回退：取第一个文本节点
-    return questionEl.innerText.split('\n')[0]?.trim() || '';
-  }
-  
-  /**
-   * 识别题型
-   */
-  function identifyQuestionType(questionEl) {
-    const text = questionEl.innerText.toLowerCase();
-    
-    if (text.includes('单选') || questionEl.querySelector('input[type="radio"]')) {
-      return 'single_choice';
-    }
-    if (text.includes('多选') || questionEl.querySelector('input[type="checkbox"]')) {
-      return 'multiple_choice';
-    }
-    if (text.includes('判断') || text.includes('对错')) {
-      return 'true_false';
-    }
-    if (text.includes('填空')) {
-      return 'fill_blank';
-    }
-    if (text.includes('简答') || text.includes('问答')) {
-      return 'short_answer';
-    }
-    
-    return 'unknown';
-  }
-  
-  /**
-   * 从 LLM 获取答案
-   */
-  async function getAnswerFromLLM(questionText, questionType, config) {
-    const prompt = `
-题目类型：${questionType}
-题目内容：${questionText}
 
-请直接给出答案：
-- 单选题：只输出选项字母（如：A）
-- 多选题：只输出选项字母（如：ABD）
-- 判断题：只输出"正确"或"错误"
-- 填空题：只输出答案内容
-- 简答题：简洁回答要点
-`.trim();
-    
-    return new Promise((resolve) => {
-      chrome.runtime.sendMessage({
-        action: 'callLLM',
-        prompt: prompt,
-        options: {
-          temperature: 0.3,
-          maxTokens: 200
-        }
-      }, (response) => {
-        resolve(response);
-      });
-    });
+  // 解析答案
+  function parseAnswer(answerText, question) {
+    answerText = answerText.toUpperCase();
+
+    // 选择题:提取选项字母
+    if (question.options.length > 0) {
+      const match = answerText.match(/[A-Z]+/);
+      if (match) {
+        const selectedLetters = match[0].split('');
+        return selectedLetters.map(letter => {
+          const index = letter.charCodeAt(0) - 65;
+          return question.options.find(o => o.index === index);
+        }).filter(Boolean);
+      }
+    }
+
+    // 其他题型:返回文本答案
+    return { text: answerText };
   }
-  
-  /**
-   * 填写答案
-   */
-  async function fillAnswer(questionEl, answer, questionType, humanSimulator) {
-    // 根据题型和答案类型处理
-    switch (questionType) {
-      case 'single_choice':
-      case 'true_false':
-        // 查找对应的 radio/checkbox
-        const optionMap = {
-          'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5,
-          '正确': 0, '错误': 1, '对': 0, '错': 1
-        };
+
+  // ==================== 答题执行 ====================
+  async function answerQuestion(question) {
+    log('开始答题...', question.rawText.substring(0, 50) + '...');
+
+    // 人类行为模拟:思考延迟
+    const delay = gaussianRandom(
+      agentState.settings.delayMin || 3000,
+      agentState.settings.delayMax || 8000
+    );
+    log(`模拟思考延迟:${(delay/1000).toFixed(1)}秒`);
+    await sleep(delay);
+
+    // 20% 概率触发长时间停顿（模拟分心）
+    if (agentState.settings.enableLongPause && Math.random() < 0.2) {
+      log('触发长时间停顿...');
+      await sleep(agentState.settings.longPauseDuration || 15000);
+    }
+
+    // 获取答案
+    const answer = await askLLM(question);
+    if (!answer) {
+      log('未能获取答案');
+      return false;
+    }
+
+    log('获得答案:', answer);
+
+    // 5% 概率故意答错（降低异常检测风险）
+    if (agentState.settings.errorRate && Math.random() < agentState.settings.errorRate) {
+      log('触发故意错误');
+      if (Array.isArray(answer) && question.options.length > 0) {
+        // 随机选择一个错误选项
+        const wrongIndex = Math.floor(Math.random() * question.options.length);
+        answer[0] = question.options[wrongIndex];
+      }
+    }
+
+    // 填写答案
+    if (Array.isArray(answer)) {
+      // 选择题:点击选项
+      for (const option of answer) {
+        await simulateMouseMovement(option.element);
+        option.element.click();
+        await sleep(200 + Math.random() * 300);
+      }
+    } else if (question.textarea && answer.text) {
+      // 填空题/简答题:填写文本
+      question.textarea.value = answer.text;
+      question.textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      await sleep(500 + Math.random() * 500);
+    }
+
+    // 提交答案
+    if (question.submitBtn) {
+      await simulateMouseMovement(question.submitBtn);
+      await sleep(300 + Math.random() * 300);
+      question.submitBtn.click();
+      log('已提交答案');
+    }
+
+    agentState.stats.answeredQuestions++;
+    return true;
+  }
+
+  // ==================== 监控循环 ====================
+  async function startMonitoring() {
+    log('开始监控页面题目...');
+    agentState.isActive = true;
+
+    const processedQuestions = new Set();
+
+    while (agentState.isActive) {
+      try {
+        const question = extractQuestion();
         
-        const index = optionMap[answer.toUpperCase()] || 0;
-        const options = questionEl.querySelectorAll('input[type="radio"], input[type="checkbox"]');
-        
-        if (options[index]) {
-          await humanSimulator.simulateClick(options[index]);
+        if (question) {
+          const questionKey = question.rawText.substring(0, 100);
+          
+          if (!processedQuestions.has(questionKey)) {
+            processedQuestions.add(questionKey);
+            agentState.stats.totalQuestions++;
+            
+            await answerQuestion(question);
+            
+            // 题目处理后等待一段时间
+            await sleep(2000 + Math.random() * 2000);
+          }
         }
-        break;
-        
-      case 'fill_blank':
-      case 'short_answer':
-        const textarea = questionEl.querySelector('textarea, input[type="text"]');
-        if (textarea) {
-          await humanSimulator.simulateTextInput(textarea, answer);
-        }
-        break;
-        
-      default:
-        console.warn('[Phantom] 未知题型，跳过自动填写');
+
+        // 每 5 秒检查一次
+        await sleep(5000);
+      } catch (error) {
+        log('监控循环错误:', error);
+        await sleep(5000);
+      }
     }
   }
-  
-  /**
-   * 更新统计
-   */
-  function updateStats(isCorrect) {
-    chrome.storage.local.get(['stats'], (result) => {
-      const stats = result.stats || {
-        questionsAnswered: 0,
-        correctCount: 0,
-        startTime: Date.now()
-      };
-      
-      stats.questionsAnswered++;
-      if (isCorrect) {
-        stats.correctCount++;
+
+  // ==================== 初始化 ====================
+  async function init() {
+    log('Phantom Agent 初始化...');
+
+    try {
+      // 从 background 加载状态
+      const stateResponse = await chrome.runtime.sendMessage({
+        action: 'GET_STATE'
+      });
+
+      if (stateResponse.success) {
+        agentState.currentProvider = stateResponse.state.currentProviderId;
+        agentState.settings = stateResponse.state.settings;
+        agentState.stats = stateResponse.state.stats;
       }
-      
-      chrome.storage.local.set({ stats });
-    });
+
+      // 监听设置变更
+      chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        if (message.action === 'TOGGLE_AGENT') {
+          agentState.isActive = message.payload.isActive;
+          if (agentState.isActive) {
+            startMonitoring();
+          }
+          sendResponse({ success: true });
+        } else if (message.action === 'UPDATE_SETTINGS') {
+          agentState.settings = { ...agentState.settings, ...message.payload };
+          sendResponse({ success: true });
+        }
+        return true;
+      });
+
+      log('初始化完成，等待激活...');
+    } catch (error) {
+      log('初始化失败:', error);
+    }
   }
-  
-  /**
-   * 添加控制 UI
-   */
-  function addControlUI(humanSimulator, config) {
-    // 创建悬浮控制球
-    const controlBall = document.createElement('div');
-    controlBall.id = 'phantom-control-ball';
-    controlBall.innerHTML = '👻';
-    controlBall.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 999999;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      transition: transform 0.2s;
-    `;
-    
-    controlBall.addEventListener('mouseenter', () => {
-      controlBall.style.transform = 'scale(1.1)';
-    });
-    
-    controlBall.addEventListener('mouseleave', () => {
-      controlBall.style.transform = 'scale(1)';
-    });
-    
-    controlBall.addEventListener('click', () => {
-      alert(`Phantom Agent v4.0\\n\\n状态：运行中\\n已答题目：加载中...\\n\\n点击扩展图标打开详细设置`);
-    });
-    
-    document.body.appendChild(controlBall);
-    
-    // 可拖拽
-    let isDragging = false;
-    let startX, startY, startLeft, startTop;
-    
-    controlBall.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      startLeft = controlBall.offsetLeft;
-      startTop = controlBall.offsetTop;
-    });
-    
-    document.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      controlBall.style.left = (startLeft + dx) + 'px';
-      controlBall.style.top = (startTop + dy) + 'px';
-      controlBall.style.right = 'auto';
-      controlBall.style.bottom = 'auto';
-    });
-    
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-    });
-    
-    console.log('[Phantom] 控制 UI 已添加');
+
+  // 启动
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
-  
 })();
