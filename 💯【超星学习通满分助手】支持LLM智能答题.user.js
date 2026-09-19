@@ -33,6 +33,7 @@
 // @connect                   cn.bing.com
 // @connect                   duckduckgo.com
 // @connect                   *
+// @connect                   apihub.agnes-ai.com
 // @grant                     GM_addStyle
 // @grant                     GM_getResourceText
 // @grant                     GM_getValue
@@ -76,8 +77,8 @@
     { label: "智谱GLM", value: "zhipu", baseUrl: "https://open.bigmodel.cn/api/paas/v4", suffix: "/chat/completions", models: ["glm-4", "glm-4-flash", "glm-4-plus"], apiKeyUrl: "https://open.bigmodel.cn/usercenter/apikeys" },
     { label: "通义千问", value: "qwen", baseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1", suffix: "/chat/completions", models: ["qwen-turbo", "qwen-plus", "qwen-max"], apiKeyUrl: "https://bailian.console.aliyun.com/?apiKey=1" },
     { label: "Kimi(Moonshot)", value: "kimi", baseUrl: "https://api.moonshot.cn/v1", suffix: "/chat/completions", models: ["moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k", "kimi-k2.5"], apiKeyUrl: "https://platform.moonshot.cn/console/api-keys" },
-    { label: "小米Mimo", value: "mimo", baseUrl: "https://api.xiaomimimo.com/v1", suffix: "/chat/completions", models: [], apiKeyUrl: "https://platform.xiaomimimo.com/console/api-keys" }
-  ];
+    { label: "小米Mimo", value: "mimo", baseUrl: "https://api.xiaomimimo.com/v1", suffix: "/chat/completions", models: [], apiKeyUrl: "https://platform.xiaomimimo.com/console/api-keys" },
+    { label: "Agnes AI", value: "agnes", baseUrl: "https://apihub.agnes-ai.com/v1", suffix: "/chat/completions", models: ["agnes-3.0-flash"], apiKeyUrl: "https://apihub.agnes-ai.com/console/api-keys" }];
   const getConfig = () => {
     try {
       const gmConfig = _GM_getValue("config", null);
